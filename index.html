@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Performance Analysis System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Top Dashboard Header -->
+  <header class="dashboard-header">
+    <div class="header-inner">
+      <div class="brand-block">
+        <span class="brand-badge">Academic Analytics</span>
+        <h1>Student Performance Analysis System</h1>
+        <p class="welcome-text">
+          Welcome! Add student records, calculate grades automatically, and monitor class performance in one dashboard.
+        </p>
+      </div>
+      <div class="header-actions">
+        <button type="button" id="resetSampleBtn" class="btn btn-secondary">
+          Reset Sample Data
+        </button>
+        <button type="button" id="clearAllBtn" class="btn btn-danger-outline">
+          Clear All Records
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard-container">
+    <!-- Summary KPI Cards -->
+    <section class="stats-grid" aria-label="Performance Summary">
+      <article class="stat-card">
+        <span class="stat-label">Total Students</span>
+        <strong class="stat-value" id="kpiTotalStudents">0</strong>
+        <span class="stat-sub" id="kpiAvgAttendance">Avg Attendance: 0%</span>
+      </article>
+
+      <article class="stat-card">
+        <span class="stat-label">Class Average</span>
+        <strong class="stat-value" id="kpiClassAverage">0.0%</strong>
+        <span class="stat-sub" id="kpiOverallGrade">Overall Grade: -</span>
+      </article>
+
+      <article class="stat-card stat-card-highlight">
+        <span class="stat-label">Top Performer</span>
+        <strong class="stat-value stat-value-sm" id="kpiTopStudentName">None</strong>
+        <span class="stat-sub" id="kpiTopStudentMeta">No records yet</span>
+      </article>
+
+      <article class="stat-card stat-card-warning">
+        <span class="stat-label">Needs Improvement</span>
+        <strong class="stat-value" id="kpiNeedsImprovementCount">0</strong>
+        <span class="stat-sub" id="kpiNeedsImprovementMeta">Below 60% or &lt; 75% attendance</span>
+      </article>
+    </section>
+
+    <!-- Spotlight Insights: Top Performer & Needs Improvement -->
+    <section class="insights-grid" aria-label="Student Highlights">
+      <article class="card spotlight-card">
+        <div class="card-header">
+          <div>
+            <h2>Top-Performing Student</h2>
+            <p class="card-subtitle">Highest overall percentage across all 5 subjects</p>
+          </div>
+          <span class="pill pill-success">Top Rank</span>
+        </div>
+        <div id="topStudentCard" class="spotlight-body"></div>
+      </article>
+
+      <article class="card spotlight-card">
+        <div class="card-header">
+          <div>
+            <h2>Students Needing Improvement</h2>
+            <p class="card-subtitle">Percentage below 60% (Grade D) or attendance below 75%</p>
+          </div>
+          <span class="pill pill-warning" id="improvementBadge">0 Flagged</span>
+        </div>
+        <div id="improvementList" class="improvement-list"></div>
+      </article>
+    </section>
+
+    <!-- Add Student Form -->
+    <section class="card form-card" aria-labelledby="formHeading">
+      <div class="card-header">
+        <div>
+          <h2 id="formHeading">Add New Student Record</h2>
+          <p class="card-subtitle">
+            Enter student details and marks (0–100 per subject). Total, average, percentage, and grade update automatically.
+          </p>
+        </div>
+        <div class="grade-legend" aria-label="Grading Rules">
+          <span class="legend-item"><span class="grade-badge grade-aplus">A+</span> 90+</span>
+          <span class="legend-item"><span class="grade-badge grade-a">A</span> 80–89</span>
+          <span class="legend-item"><span class="grade-badge grade-b">B</span> 70–79</span>
+          <span class="legend-item"><span class="grade-badge grade-c">C</span> 60–69</span>
+          <span class="legend-item"><span class="grade-badge grade-d">D</span> &lt; 60</span>
+        </div>
+      </div>
+
+      <form id="studentForm" novalidate>
+        <div class="form-section-label">Student Information</div>
+        <div class="form-grid form-grid-4">
+          <div class="form-group">
+            <label for="studentName">Student Name</label>
+            <input type="text" id="studentName" placeholder="e.g., Aarav Sharma" required>
+          </div>
+
+          <div class="form-group">
+            <label for="rollNumber">Roll Number</label>
+            <input type="text" id="rollNumber" placeholder="e.g., 10A-01" required>
+          </div>
+
+          <div class="form-group">
+            <label for="studentClass">Class</label>
+            <input type="text" id="studentClass" list="classSuggestions" placeholder="e.g., Class 10-A" required>
+            <datalist id="classSuggestions">
+              <option value="Class 10-A"></option>
+              <option value="Class 10-B"></option>
+              <option value="Class 11-A"></option>
+              <option value="Class 12-A"></option>
+            </datalist>
+          </div>
+
+          <div class="form-group">
+            <label for="attendance">Attendance (%)</label>
+            <input type="number" id="attendance" min="0" max="100" step="0.1" placeholder="0 - 100" required>
+          </div>
+        </div>
+
+        <div class="form-section-label">Marks in 5 Subjects (Out of 100 Each)</div>
+        <div class="form-grid form-grid-5">
+          <div class="form-group">
+            <label for="mathMarks">Mathematics</label>
+            <input type="number" id="mathMarks" class="subject-input" min="0" max="100" step="1" placeholder="0 - 100" required>
+          </div>
+
+          <div class="form-group">
+            <label for="scienceMarks">Science</label>
+            <input type="number" id="scienceMarks" class="subject-input" min="0" max="100" step="1" placeholder="0 - 100" required>
+          </div>
+
+          <div class="form-group">
+            <label for="englishMarks">English</label>
+            <input type="number" id="englishMarks" class="subject-input" min="0" max="100" step="1" placeholder="0 - 100" required>
+          </div>
+
+          <div class="form-group">
+            <label for="socialMarks">Social Studies</label>
+            <input type="number" id="socialMarks" class="subject-input" min="0" max="100" step="1" placeholder="0 - 100" required>
+          </div>
+
+          <div class="form-group">
+            <label for="computerMarks">Computer Science</label>
+            <input type="number" id="computerMarks" class="subject-input" min="0" max="100" step="1" placeholder="0 - 100" required>
+          </div>
+        </div>
+
+        <!-- Live Calculation Preview -->
+        <div class="live-preview" aria-live="polite">
+          <div class="preview-item">
+            <span class="preview-label">Total Marks</span>
+            <strong id="previewTotal">0 / 500</strong>
+          </div>
+          <div class="preview-item">
+            <span class="preview-label">Average</span>
+            <strong id="previewAverage">0.00</strong>
+          </div>
+          <div class="preview-item">
+            <span class="preview-label">Percentage</span>
+            <strong id="previewPercentage">0.00%</strong>
+          </div>
+          <div class="preview-item">
+            <span class="preview-label">Predicted Grade</span>
+            <strong id="previewGrade" class="grade-badge grade-neutral">-</strong>
+          </div>
+        </div>
+
+        <p id="formMessage" class="form-message hidden" role="alert"></p>
+
+        <div class="form-actions">
+          <button type="submit" id="addStudentBtn" class="btn btn-primary">Add Student</button>
+          <button type="button" id="resetFormBtn" class="btn btn-secondary">Clear Form</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Charts Section -->
+    <section class="charts-grid" aria-label="Performance Charts">
+      <article class="card chart-card">
+        <div class="card-header">
+          <div>
+            <h2>Student Marks Chart</h2>
+            <p class="card-subtitle" id="marksChartSubtitle">Overall percentage scored by each student</p>
+          </div>
+          <div class="segmented-control" role="group" aria-label="Marks chart view">
+            <button type="button" class="seg-btn active" data-marks-view="students">By Student</button>
+            <button type="button" class="seg-btn" data-marks-view="subjects">By Subject</button>
+          </div>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="marksChart" aria-label="Student marks bar chart"></canvas>
+          <div id="marksChartEmpty" class="chart-empty hidden">Add student records to view the marks chart.</div>
+        </div>
+      </article>
+
+      <article class="card chart-card">
+        <div class="card-header">
+          <div>
+            <h2>Class Performance Chart</h2>
+            <p class="card-subtitle" id="performanceChartSubtitle">Average percentage comparison across classes</p>
+          </div>
+          <div class="segmented-control" role="group" aria-label="Class performance chart view">
+            <button type="button" class="seg-btn active" data-perf-view="classes">Class Averages</button>
+            <button type="button" class="seg-btn" data-perf-view="grades">Grade Distribution</button>
+          </div>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="performanceChart" aria-label="Class performance chart"></canvas>
+          <div id="performanceChartEmpty" class="chart-empty hidden">Add student records to view class performance.</div>
+        </div>
+      </article>
+    </section>
+
+    <!-- Student Records Table -->
+    <section class="card table-card" aria-labelledby="recordsHeading">
+      <div class="card-header table-header">
+        <div>
+          <h2 id="recordsHeading">All Student Records</h2>
+          <p class="card-subtitle" id="recordsCount">Showing 0 of 0 students</p>
+        </div>
+
+        <div class="table-toolbar">
+          <div class="search-box">
+            <input type="search" id="searchInput" placeholder="Search by name, roll no, or class..." aria-label="Search students">
+          </div>
+
+          <select id="classFilter" aria-label="Filter by class">
+            <option value="all">All Classes</option>
+          </select>
+
+          <select id="gradeFilter" aria-label="Filter by grade">
+            <option value="all">All Grades</option>
+            <option value="A+">Grade A+</option>
+            <option value="A">Grade A</option>
+            <option value="B">Grade B</option>
+            <option value="C">Grade C</option>
+            <option value="D">Grade D</option>
+            <option value="improvement">Needs Improvement</option>
+          </select>
+
+          <button type="button" id="clearFiltersBtn" class="btn btn-secondary btn-sm">Clear Filters</button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table id="studentsTable">
+          <thead>
+            <tr>
+              <th>Roll No</th>
+              <th>Student Name</th>
+              <th>Class</th>
+              <th>Attendance</th>
+              <th>Math</th>
+              <th>Science</th>
+              <th>English</th>
+              <th>Social</th>
+              <th>Computer</th>
+              <th>Total</th>
+              <th>Average</th>
+              <th>Percentage</th>
+              <th>Grade</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="studentsTableBody"></tbody>
+        </table>
+      </div>
+
+      <div id="tableEmptyState" class="empty-state hidden">
+        No matching student records found. Try clearing filters or adding a new student.
+      </div>
+    </section>
+  </main>
+
+  <!-- Clear All Confirmation Modal -->
+  <div id="confirmModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="modal-card">
+      <h3 id="confirmTitle">Clear All Student Records?</h3>
+      <p>This will remove all saved student records from your browser storage. You can restore sample records anytime.</p>
+      <div class="modal-actions">
+        <button type="button" id="cancelClearBtn" class="btn btn-secondary">Cancel</button>
+        <button type="button" id="confirmClearBtn" class="btn btn-danger">Yes, Clear All</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart Hover Tooltip & Toast Notification -->
+  <div id="chartTooltip" class="chart-tooltip hidden" role="tooltip"></div>
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
